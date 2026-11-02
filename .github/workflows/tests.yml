@@ -43,7 +43,7 @@ jobs:
         run: |
           python -m scripts.seed_data
           python -c "from app.database.neo4j_client import get_client; from app.services.gds_service import GdsService; GdsService(get_client()).run_all()"
-      - name: Tests with coverage (container tests skip: no Compose stack in CI)
+      - name: "Tests with coverage (container tests skip: no Compose stack in CI)"
         run: pytest -q --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=60
       - uses: actions/upload-artifact@v4
         with:
