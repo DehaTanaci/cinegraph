@@ -66,7 +66,7 @@ built for both `linux/amd64` and `linux/arm64`. To use it instead of building lo
 | `make install` | Create `.venv` and install `requirements-dev.txt` |
 | `make data` | Download `ml-latest-small` and `ml-25m` into `data/raw/` |
 | `make docker-run` / `make docker-down` | Start / stop the Compose stack |
-| `make seed` / `make seed-large` | Load the small dataset / 2M ratings of ml-25m |
+| `make seed` / `make seed-large` | Replace the graph with the small dataset / 2M ratings of ml-25m (then run `make gds`) |
 | `make gds` | Run graph algorithms and write results to the graph |
 | `make train` | Evaluate (writes `docs/ml_report.md`) and train the serving model |
 | `make eval` | Evaluate the NL assistant on 20 questions (writes `docs/agent_evaluation.md`) |
