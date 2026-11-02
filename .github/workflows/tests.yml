@@ -37,7 +37,7 @@ jobs:
       - name: Download MovieLens small
         run: |
           mkdir -p data/raw && cd data/raw
-          curl -fsSLO https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
+          curl -fsSLO --retry 5 --retry-delay 15 --retry-all-errors --max-time 180 https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
           unzip -q ml-latest-small.zip
       - name: Seed graph and run algorithms
         run: |
