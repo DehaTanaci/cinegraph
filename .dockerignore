@@ -1,0 +1,11 @@
+.env
+.git
+.venv
+data
+models/*.joblib
+**/__pycache__
+.pytest_cache
+.coverage
+htmlcov
+*.ipynb
+docs
