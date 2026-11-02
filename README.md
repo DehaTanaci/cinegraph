@@ -54,7 +54,8 @@ The LLM runs in the host's Ollama app, because Docker on macOS has no GPU access
 container reaches it at `host.docker.internal`. To run it inside Docker instead:
 `docker compose --profile ollama up -d` and set `OLLAMA_URL=http://ollama:11434`.
 
-**Public image:** `docker.io/<dockerhub-user>/cinegraph-api:1.0` *(link added after `make docker-push`)*.
+**Public image:** [`dehatanaci06/cinegraph-api:1.0`](https://hub.docker.com/r/dehatanaci06/cinegraph-api) on Docker Hub,
+built for both `linux/amd64` and `linux/arm64`. To use it instead of building locally: `API_IMAGE=dehatanaci06/cinegraph-api:1.0 docker compose up -d --no-build`.
 
 ## 2. Makefile
 
@@ -293,7 +294,7 @@ be bypassed by rephrasing. That is acceptable only because layers 3–7 do not d
 
 ## 10. Performance
 
-`make benchmark` drops each index, measures with `PROFILE`, recreates it and measures again (full table in
+Measured on 2026-11-02 (M3 Pro, ml-latest-small). `make benchmark` drops each index, measures with `PROFILE`, recreates it and measures again (full table in
 [`docs/benchmarks.md`](docs/benchmarks.md)). "db hits" counts the work the engine does, so it is comparable across machines.
 
 | Case | db hits before → after | Plan change |
@@ -319,7 +320,7 @@ subqueries instead of collecting lists.
 
 ## 12. Tests & quality
 
-`make test`: **95 tests, 83% coverage**:
+`make test`: **96 tests, 83% coverage**:
 - `test_guardrails.py`: every safety check, including tricky cases (keywords inside titles, `;` inside strings);
 - `test_agent_workflow.py`: the LangGraph flow with a scripted fake LLM: retry after a rejected write, invented
   property rejected after 3 attempts, hallucinated number flagged, unanswerable question declined;
@@ -345,9 +346,19 @@ More visualisations (rating distributions, genres, communities) are in [`demo.ip
 
 ## 14. Git workflow
 
-`main` is the stable branch. Each feature was developed on a `feat/*` branch and merged through a Pull Request with
-review comments. Commits follow the `feat: / fix: / test: / docs: / refactor: / chore:` convention. The GitHub
-Actions lint and test workflows run on every push and PR.
+`main` is the stable branch. Each part of the project was developed on its own branch and merged through a Pull
+Request after a review. Every review left at least two concrete comments, and the issues found were fixed in
+follow-up `fix:` commits before merging:
+
+| PR | Branch | Review findings fixed before merge |
+|---|---|---|
+| [#1](https://github.com/DehaTanaci/cinegraph/pull/1) Graph schema & ingestion | `feat/graph-ingestion` | over-broad exception in the health check; noisy progress logs in CI |
+| [#2](https://github.com/DehaTanaci/cinegraph/pull/2) Guarded NL-to-Cypher assistant | `feat/nl-cypher-agent` | question screen refused legitimate questions ("did ratings *change* for…"); exact-title rule |
+| [#3](https://github.com/DehaTanaci/cinegraph/pull/3) API, GDS & ML | `feat/api-gds-ml` | retrained model not reloaded without restart; magic number; invalid workflow YAML |
+| [#4](https://github.com/DehaTanaci/cinegraph/pull/4) Documentation & notebook | `docs/readme-notebook` | see PR |
+
+Commits follow the `feat: / fix: / test: / docs: / refactor: / chore:` convention. GitHub Actions runs pylint and the
+full test suite (against a Neo4j + GDS service container) on every push and PR.
 
 **Contributions:** individual project. All commits and merged PRs are by Deha Tanaci.
 
