@@ -208,7 +208,10 @@ def main(argv: list[str] | None = None) -> None:
         start = time.perf_counter()
         if args.reset:
             print("Deleting existing data...")
-            client.run_auto("MATCH (n) CALL (n) { DETACH DELETE n } IN TRANSACTIONS OF 10000 ROWS")
+            # Relationships first, in batches: detaching a node with thousands of ratings in one
+            # transaction exceeds Neo4j's transaction memory limit on ml-25m.
+            client.run_auto("MATCH ()-[r]->() CALL (r) { DELETE r } IN TRANSACTIONS OF 50000 ROWS")
+            client.run_auto("MATCH (n) CALL (n) { DELETE n } IN TRANSACTIONS OF 50000 ROWS")
         apply_schema(client)
         print(f"Movies: {load_movies(client, folder):,}")
         print(f"Ratings: {load_ratings(client, folder, args.max_ratings):,}")
