@@ -181,7 +181,9 @@ $("recs").addEventListener("click", async (ev) => {
   const id = ev.target.dataset.why; if (!id) return;
   const box = ev.target.nextElementSibling;
   box.innerHTML = '<div class="spin">Collecting graph evidence…</div>';
-  const w = await api(`/api/users/${$("uid").value}/recommendations/${id}/why`);
+  let w;
+  try { w = await api(`/api/users/${$("uid").value}/recommendations/${id}/why`); }
+  catch (e) { box.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
   const labels = {similar_users: "Similar users", similar_movie: "Similar movie", genre_affinity: "Genre", shared_tag: "Shared tag"};
   const seen = {};
   const ev2 = w.evidence.filter((e) => (seen[e.kind] = (seen[e.kind] || 0) + 1) <= 2);
@@ -214,6 +216,8 @@ $("findPath").onclick = async () => {
   try {
     const [a, b] = await Promise.all([api(`/api/movies/search?q=${encodeURIComponent($("fromQ").value)}&limit=1`),
                                       api(`/api/movies/search?q=${encodeURIComponent($("toQ").value)}&limit=1`)]);
+    const missing = !a.length ? $("fromQ").value : !b.length ? $("toQ").value : null;
+    if (missing) { out.innerHTML = `<div class="err">No movie found for "${esc(missing)}".</div>`; return; }
     const p = await api(`/api/movies/path?from=${a[0].movie_id}&to=${b[0].movie_id}&weighted=${$("weighted").value}`);
     if (p.hops < 0) { out.innerHTML = "No chain of similar movies connects these two."; return; }
     out.innerHTML = `<div class="sub">${p.method === "dijkstra" ? "GDS Dijkstra, cost = 1 − similarity" : "Cypher shortestPath, fewest hops"} · ${p.hops} hops${p.total_cost !== undefined && p.total_cost !== null ? " · total cost " + p.total_cost : ""}</div>
