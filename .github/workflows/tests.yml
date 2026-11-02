@@ -34,12 +34,24 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements-dev.txt
+      - name: Cache MovieLens small
+        id: movielens
+        uses: actions/cache@v4
+        with:
+          path: data/raw/ml-latest-small
+          key: movielens-ml-latest-small-v1
       - name: Download MovieLens small
+        if: steps.movielens.outputs.cache-hit != 'true'
         run: |
           mkdir -p data/raw && cd data/raw
-          curl -fsSLO --retry 5 --retry-delay 15 --retry-all-errors --max-time 180 https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
-          unzip -q ml-latest-small.zip
+          if curl -fsSLO --retry 3 --retry-delay 10 --retry-all-errors --max-time 120 \
+               https://files.grouplens.org/datasets/movielens/ml-latest-small.zip; then
+            unzip -q ml-latest-small.zip && rm ml-latest-small.zip
+          else
+            echo "::warning::GroupLens unreachable: Neo4j integration tests will be skipped in this run"
+          fi
       - name: Seed graph and run algorithms
+        if: hashFiles('data/raw/ml-latest-small/movies.csv') != ''
         run: |
           python -m scripts.seed_data
           python -c "from app.database.neo4j_client import get_client; from app.services.gds_service import GdsService; GdsService(get_client()).run_all()"
