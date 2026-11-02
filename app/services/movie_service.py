@@ -10,6 +10,9 @@ from typing import Any, Optional
 from app.config import get_settings
 from app.database.neo4j_client import Neo4jClient
 
+# A taste community counts as one of the user's "home" communities if they liked at least this many of its movies.
+HOME_COMMUNITY_MIN_LIKES = 3
+
 MOVIE_FIELDS = """
     movie_id: {v}.movieId, title: {v}.title, year: {v}.year, genres: {v}.genres,
     avg_rating: {v}.avgRating, rating_count: {v}.ratingCount
@@ -236,7 +239,7 @@ class MovieService:
     def discover(self, user_id: int, limit: int, offset: int) -> list[dict[str, Any]]:
         """Movies from taste communities this user has barely explored, loved by their own community.
 
-        "Home" communities are those where the user liked at least 3 movies.
+        "Home" communities are those where the user liked at least HOME_COMMUNITY_MIN_LIKES movies.
         """
         self._require_user(user_id)
         if not self.client.read("MATCH (u:User {userId: $id}) WHERE u.community IS NOT NULL RETURN 1 AS ok",
@@ -249,7 +252,7 @@ class MovieService:
             CALL (u) {{
                 MATCH (u)-[r:RATED]->(m:Movie)
                 WHERE r.rating >= $like AND m.community IS NOT NULL
-                WITH m.community AS c, count(*) AS n WHERE n >= 3
+                WITH m.community AS c, count(*) AS n WHERE n >= $homeMin
                 RETURN collect(c) AS home
             }}
             MATCH (peer:User {{community: u.community}})-[r:RATED]->(rec:Movie)
@@ -262,7 +265,7 @@ class MovieService:
                    AS detail
             ORDER BY score DESC, rec.pagerank DESC SKIP $offset LIMIT $limit
             """,
-            {"id": user_id, "like": self.like, "limit": limit, "offset": offset},
+            {"id": user_id, "like": self.like, "homeMin": HOME_COMMUNITY_MIN_LIKES, "limit": limit, "offset": offset},
         )
 
     # ---------- rankings ----------
