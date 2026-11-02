@@ -3,6 +3,7 @@
 from typing import Any, Optional
 
 from neo4j import Driver, GraphDatabase, unit_of_work
+from neo4j.exceptions import DriverError, Neo4jError
 
 from app.config import get_settings
 
@@ -22,7 +23,7 @@ class Neo4jClient:
         try:
             self._driver.verify_connectivity()
             return True
-        except Exception:  # pylint: disable=broad-exception-caught
+        except (DriverError, Neo4jError):
             return False
 
     def read(self, cypher: str, params: Optional[dict] = None, timeout: Optional[float] = None) -> list[dict[str, Any]]:

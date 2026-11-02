@@ -122,6 +122,7 @@ def load_ratings(client: Neo4jClient, folder: Path, max_ratings: int | None) -> 
                 "timestamp": int(row["timestamp"]),
             }
 
+    interactive = sys.stdout.isatty()
     for batch in batched(rows()):
         client.write(
             """
@@ -134,8 +135,12 @@ def load_ratings(client: Neo4jClient, folder: Path, max_ratings: int | None) -> 
             {"rows": batch},
         )
         total += len(batch)
-        print(f"  ratings loaded: {total:,}", end="\r", flush=True)
-    print()
+        if interactive:
+            print(f"  ratings loaded: {total:,}", end="\r", flush=True)
+        elif total % 50_000 < BATCH_SIZE:
+            print(f"  ratings loaded: {total:,}")
+    if interactive:
+        print()
     return total
 
 
