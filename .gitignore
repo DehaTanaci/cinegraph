@@ -26,3 +26,5 @@ models/*.joblib
 # Presentation build artefacts (video is large)
 presentation/build/
 presentation/*.mp4
+presentation/.tts/
+presentation/tts_install.log

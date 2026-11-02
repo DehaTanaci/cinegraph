@@ -10,7 +10,7 @@ help:
 	@echo "  make install        Install requirements (incl. dev tools) into .venv"
 	@echo "  make data           Download MovieLens datasets into data/raw"
 	@echo "  make docker-run     Start the Docker Compose stack (Neo4j, API, Nginx) in the background"
-	@echo "  make seed           Load DATASET (default ml-latest-small) into Neo4j"
+	@echo "  make seed           Load DATASET (default ml-latest-small) into an empty Neo4j"
 	@echo "  make seed-large     Load 2M ratings from ml-25m instead"
 	@echo "  make gds            Run graph algorithms (similarity, PageRank, Louvain, FastRP)"
 	@echo "  make train          Evaluate + train the link-prediction model (needs make gds)"
@@ -46,7 +46,7 @@ data:
 		else echo "$$d already present"; fi; done
 
 seed:
-	@$(PY) -m scripts.seed_data
+	@$(PY) -m scripts.seed_data --reset
 
 seed-large:
 	@$(PY) -m scripts.seed_data --dataset ml-25m --max-ratings 2000000 --reset

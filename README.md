@@ -3,7 +3,7 @@
 [![lint](https://github.com/DehaTanaci/cinegraph/actions/workflows/lint.yml/badge.svg)](https://github.com/DehaTanaci/cinegraph/actions/workflows/lint.yml)
 [![tests](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml/badge.svg)](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml)
 [![coverage](https://img.shields.io/badge/coverage-83%25-brightgreen)](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml)
-![pylint](https://img.shields.io/badge/pylint-9.87%2F10-brightgreen)
+![pylint](https://img.shields.io/badge/pylint-9.84%2F10-brightgreen)
 
 **AIDAMS 3A — GraphDB project #4 "Movie Recommender in Production" (Level 2). Individual project.**
 
@@ -66,7 +66,7 @@ built for both `linux/amd64` and `linux/arm64`. To use it instead of building lo
 | `make install` | Create `.venv` and install `requirements-dev.txt` |
 | `make data` | Download `ml-latest-small` and `ml-25m` into `data/raw/` |
 | `make docker-run` / `make docker-down` | Start / stop the Compose stack |
-| `make seed` / `make seed-large` | Load the small dataset / 2M ratings of ml-25m |
+| `make seed` / `make seed-large` | Replace the graph with the small dataset / 2M ratings of ml-25m (then run `make gds`) |
 | `make gds` | Run graph algorithms and write results to the graph |
 | `make train` | Evaluate (writes `docs/ml_report.md`) and train the serving model |
 | `make eval` | Evaluate the NL assistant on 20 questions (writes `docs/agent_evaluation.md`) |
@@ -76,6 +76,10 @@ built for both `linux/amd64` and `linux/arm64`. To use it instead of building lo
 | `make lint` / `make format` | pylint (fails under 9.5) / black |
 | `make docker-push TAG=user/cinegraph-api:1.0` | Publish the API image |
 | `make notebook` · `make clean` · `make tree` | Demo notebook · remove caches · project tree |
+
+The demo video was produced from the running stack by `presentation/make_video.py` (browser automation +
+a local open-source TTS voice used as a pacing guide) and `presentation/prompter.py` (teleprompter version for
+recording the human voice-over); `presentation/narration.md` is its script.
 
 ## 3. Architecture
 
@@ -325,7 +329,7 @@ subqueries instead of collecting lists.
 
 ## 12. Tests & quality
 
-`make test`: **96 tests, 83% coverage**:
+`make test`: **97 tests, 83% coverage**:
 - `test_guardrails.py`: every safety check, including tricky cases (keywords inside titles, `;` inside strings);
 - `test_agent_workflow.py`: the LangGraph flow with a scripted fake LLM: retry after a rejected write, invented
   property rejected after 3 attempts, hallucinated number flagged, unanswerable question declined;
@@ -337,7 +341,7 @@ subqueries instead of collecting lists.
 
 Integration and container tests skip themselves when the database or stack is not running. CI (`.github/workflows`)
 runs pylint and the full suite against a Neo4j + GDS service container seeded with the small dataset.
-`make lint`: pylint **9.87/10** with the course `.pylintrc`.
+`make lint`: pylint **9.84/10** with the course `.pylintrc`.
 
 ## 13. Screenshots
 
@@ -366,6 +370,12 @@ Commits follow the `feat: / fix: / test: / docs: / refactor: / chore:` conventio
 full test suite (against a Neo4j + GDS service container) on every push and PR.
 
 **Contributions:** individual project. All commits and merged PRs are by Deha Tanaci.
+
+**Use of AI assistance.** This project was built with [Claude Code](https://claude.com/claude-code) as a coding
+assistant, as the course allows; every commit it helped write carries a `Co-Authored-By: Claude` line. Every design
+decision is documented above with its reasoning and the alternatives rejected, every number in this README comes from
+a script in the repository that can be re-run, and the anti-genericity appendix below compares the final schema with a
+first AI-generated draft.
 
 ## 15. Limitations
 
