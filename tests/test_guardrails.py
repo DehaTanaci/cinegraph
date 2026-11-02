@@ -21,7 +21,12 @@ def test_screen_rejects_unsafe_questions(question):
 
 @pytest.mark.parametrize(
     "question",
-    ["What movies are similar to Toy Story?", "Which films are set in space?", "How many users rated Titanic?"],
+    [
+        "What movies are similar to Toy Story?",
+        "Which films are set in space?",
+        "How many users rated Titanic?",
+        "Did the average rating change for movies released in 2015?",
+    ],
 )
 def test_screen_allows_normal_questions(question):
     assert g.screen_question(question).passed

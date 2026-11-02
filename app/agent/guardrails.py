@@ -15,8 +15,12 @@ from typing import Any
 
 from app.database.schema import LLM_SCHEMA
 
+# Only imperative requests ("Delete ...", "please set ...") are screened here; a write verb in the middle of a
+# read question ("did ratings change for movies ...") is fine. Writes phrased any other way are still blocked
+# by the keyword check, EXPLAIN and the read-only transaction.
 WRITE_INTENT = re.compile(
-    r"\b(delete|remove|drop|erase|wipe|insert|create|add|update|modify|change|rename|merge|set)\b"
+    r"^\s*(?:please\s+|can you\s+|could you\s+)?"
+    r"(delete|remove|drop|erase|wipe|insert|create|add|update|modify|change|rename|merge|set)\b"
     r".{0,40}\b(movie|movies|user|users|rating|ratings|node|nodes|database|graph|genre|tag|data|everything)\b",
     re.IGNORECASE,
 )

@@ -12,7 +12,8 @@ Facts about the data:
 - Movie.genres is a list of strings, e.g. ['Action', 'Sci-Fi']. Genre names: Action, Adventure, Animation, Children,
   Comedy, Crime, Documentary, Drama, Fantasy, Film-Noir, Horror, IMAX, Musical, Mystery, Romance, Sci-Fi, Thriller,
   War, Western.
-- Movie.title has no year, e.g. 'The Matrix'. Match titles with toLower(m.title) CONTAINS toLower('...').
+- Movie.title has no year, e.g. 'The Matrix'. Match a title with toLower(m.title) = '...' when the question
+  names an exact movie, and with CONTAINS for partial names.
 - Movie.year is an integer. A decade like 'the 90s' means m.year >= 1990 AND m.year <= 1999.
 - RATED.rating is 0.5 to 5.0. A rating >= 4.0 means the user liked the movie.
 - Movie.avgRating and Movie.ratingCount are precomputed. Prefer movies with ratingCount >= 20 for "best" questions.

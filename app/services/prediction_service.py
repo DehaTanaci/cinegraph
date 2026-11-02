@@ -37,10 +37,12 @@ class PredictionService:
         self.path = Path(get_settings().model_dir) / MODEL_FILE
 
     def _model(self) -> dict[str, Any]:
-        key = str(self.path)
+        if not self.path.exists():
+            raise PrerequisiteError("No trained model found. Run `make gds` then `make train`.")
+        # Keyed on modification time so a retrained model is picked up without restarting the API.
+        key = f"{self.path}:{self.path.stat().st_mtime_ns}"
         if key not in self._cache:
-            if not self.path.exists():
-                raise PrerequisiteError("No trained model found. Run `make gds` then `make train`.")
+            self._cache.clear()
             self._cache[key] = joblib.load(self.path)
         return self._cache[key]
 
