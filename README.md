@@ -2,7 +2,7 @@
 
 [![lint](https://github.com/DehaTanaci/cinegraph/actions/workflows/lint.yml/badge.svg)](https://github.com/DehaTanaci/cinegraph/actions/workflows/lint.yml)
 [![tests](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml/badge.svg)](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml)
-![coverage](https://img.shields.io/badge/coverage-83%25-brightgreen)
+[![coverage](https://img.shields.io/badge/coverage-83%25-brightgreen)](https://github.com/DehaTanaci/cinegraph/actions/workflows/tests.yml)
 ![pylint](https://img.shields.io/badge/pylint-9.87%2F10-brightgreen)
 
 **AIDAMS 3A — GraphDB project #4 "Movie Recommender in Production" (Level 2). Individual project.**
@@ -277,14 +277,14 @@ The LLM only ever **proposes text**. Deterministic code and Neo4j decide what ru
 Each response separates **`rows`** (verified data from Neo4j) from **`answer`** (AI-written, may contain
 mistakes) and includes the generated `cypher`, every guardrail result, and a `trace` of the steps taken.
 
-**Evaluation** (`make eval`, full table in [`docs/agent_evaluation.md`](docs/agent_evaluation.md)): 20 questions, ground truth computed from the database.
+**Evaluation** (`make eval`, re-run on the final code on 2026-11-02, full table in [`docs/agent_evaluation.md`](docs/agent_evaluation.md)): 20 questions, ground truth computed from the database.
 
 | | Result |
 |---|---:|
 | Answerable questions answered correctly | 14/14 |
 | Unsafe or unanswerable questions refused | 6/6 |
 | Answers whose numbers all appear in the data | 14/14 |
-| Median latency (M3 Pro, local 7B model) | 3.4 s |
+| Median latency (M3 Pro, local 7B model) | 3.6 s |
 
 The first run scored 19/20. Asked about *box office revenue*, the model silently answered "most-rated movies"
 instead. Nothing was technically unsafe, but the answer was misleading. We added an explicit "missing data →
@@ -355,7 +355,7 @@ follow-up `fix:` commits before merging:
 | [#1](https://github.com/DehaTanaci/cinegraph/pull/1) Graph schema & ingestion | `feat/graph-ingestion` | over-broad exception in the health check; noisy progress logs in CI |
 | [#2](https://github.com/DehaTanaci/cinegraph/pull/2) Guarded NL-to-Cypher assistant | `feat/nl-cypher-agent` | question screen refused legitimate questions ("did ratings *change* for…"); exact-title rule |
 | [#3](https://github.com/DehaTanaci/cinegraph/pull/3) API, GDS & ML | `feat/api-gds-ml` | retrained model not reloaded without restart; magic number; invalid workflow YAML |
-| [#4](https://github.com/DehaTanaci/cinegraph/pull/4) Documentation & notebook | `docs/readme-notebook` | see PR |
+| [#4](https://github.com/DehaTanaci/cinegraph/pull/4) Documentation & notebook | `docs/readme-notebook` | evaluation report re-generated on the final code; static coverage badge linked to CI |
 
 Commits follow the `feat: / fix: / test: / docs: / refactor: / chore:` convention. GitHub Actions runs pylint and the
 full test suite (against a Neo4j + GDS service container) on every push and PR.
