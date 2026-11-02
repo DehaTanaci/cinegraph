@@ -18,6 +18,7 @@ for the /predict endpoint. Metrics are written to docs/ml_report.md.
 import json
 import random
 import time
+import warnings
 from pathlib import Path
 
 import joblib
@@ -29,6 +30,9 @@ from app.config import get_settings
 from app.database.neo4j_client import Neo4jClient
 from app.services.gds_service import EMBEDDING_DIM, RANDOM_SEED
 from app.services.prediction_service import MODEL_FILE, pair_features
+
+# scikit-learn passes an option newer SciPy no longer knows; the warning is harmless noise.
+warnings.filterwarnings("ignore", message="Unknown solver options")
 
 TRAIN_GRAPH = "likes_train"
 REPORT = Path("docs/ml_report.md")
