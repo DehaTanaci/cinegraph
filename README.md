@@ -48,7 +48,8 @@ make gds                          # similarity, PageRank, Louvain, FastRP (~2 s)
 make train                        # evaluate + train the link-prediction model (~10 s)
 ```
 
-Then open **http://localhost:8080/docs** (Swagger, through Nginx) or **http://localhost:7474** (Neo4j Browser).
+Then open **http://localhost:8080/demo** (demo interface), **http://localhost:8080/docs** (Swagger, through Nginx) or
+**http://localhost:7474** (Neo4j Browser).
 
 The LLM runs in the host's Ollama app, because Docker on macOS has no GPU access and would be ~10× slower. The API
 container reaches it at `host.docker.internal`. To run it inside Docker instead:
@@ -167,6 +168,10 @@ when the meaning is symmetric (paths, "why").
 Full interactive documentation: `/docs` (Swagger) and `/openapi.json`. All list endpoints are paginated
 (`limit` ≤ 50, `offset`). Errors use meaningful codes: **404** unknown id, **409** an algorithm or model has not been
 computed yet, **422** invalid input, **401** missing admin key, **502** LLM failure, **503** database down.
+
+The **demo interface** at `/demo` is a single static page (`app/static/demo.html`) that calls these endpoints from
+the browser: profile + recommendations + "why", discovery, movie search with both similarity methods, taste paths,
+and the assistant with its guardrail report and a "what if the AI wrote this query?" checker.
 
 | Method & path | Graph technique |
 |---|---|

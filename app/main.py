@@ -2,9 +2,10 @@
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from neo4j.exceptions import Neo4jError, ServiceUnavailable
 
 from app.agent.llm import LLMError
@@ -37,6 +38,20 @@ app.include_router(movies.router)
 app.include_router(users.router)
 app.include_router(ask.router)
 app.include_router(admin.router)
+
+DEMO_PAGE = Path(__file__).parent / "static" / "demo.html"
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    """Send visitors to the demo page."""
+    return RedirectResponse("/demo")
+
+
+@app.get("/demo", include_in_schema=False)
+def demo():
+    """Single-page demo interface that calls the API from the browser."""
+    return FileResponse(DEMO_PAGE)
 
 
 @app.exception_handler(NotFoundError)

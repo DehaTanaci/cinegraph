@@ -181,3 +181,9 @@ def test_guardrail_check_endpoint(api):
     assert any(c["name"] == "read_only_keywords" and not c["passed"] for c in blocked["checks"])
     allowed = api.post("/api/ask/check", json={"cypher": "MATCH (m:Movie) RETURN m.title"}).json()
     assert allowed["passed"] is True
+
+
+def test_demo_page_served(api):
+    assert api.get("/", follow_redirects=False).headers["location"] == "/demo"
+    page = api.get("/demo")
+    assert page.status_code == 200 and "CineGraph" in page.text

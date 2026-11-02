@@ -22,3 +22,7 @@ models/*.joblib
 .DS_Store
 .vscode/
 .idea/
+
+# Presentation build artefacts (video is large)
+presentation/build/
+presentation/*.mp4

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CineGraph Demo</title>
+<style>
+  :root {
+    --bg: #0f1218; --panel: #171b24; --panel2: #1e2330; --line: #2a3142; --text: #e8ebf2; --muted: #9aa3b5;
+    --accent: #ff7a59; --accent2: #6ea8ff; --ok: #3ccf91; --bad: #ff5d6c; --warn: #ffc857;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; padding: 14px 28px; border-bottom: 1px solid var(--line); background: #12161e; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -.5px; }
+  .logo span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 13px; }
+  nav { margin-left: auto; display: flex; gap: 6px; }
+  nav button { background: transparent; color: var(--muted); border: 1px solid transparent; padding: 8px 14px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  nav button.active { color: var(--text); background: var(--panel2); border-color: var(--line); }
+  main { padding: 22px 28px; max-width: 1400px; margin: 0 auto; }
+  .tab { display: none; } .tab.active { display: block; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  input, select { background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; font-size: 15px; }
+  input[type=text] { min-width: 320px; }
+  .btn { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 14px; cursor: pointer; }
+  .btn.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  .btn.red { background: var(--bad); }
+  h2 { font-size: 18px; margin: 4px 0 12px; } h3 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .movie .t { font-weight: 700; font-size: 15px; }
+  .movie .y { color: var(--muted); font-weight: 400; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin: 7px 0; }
+  .chip { font-size: 11.5px; padding: 2px 8px; border-radius: 99px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+  .meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
+  .score { color: var(--accent); font-weight: 700; }
+  .detail { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .why { margin-top: 10px; font-size: 13px; border-top: 1px dashed var(--line); padding-top: 9px; }
+  .why .sum { color: var(--text); margin-bottom: 6px; }
+  .ev { display: flex; gap: 8px; margin: 4px 0; color: var(--muted); }
+  .ev b { color: var(--accent2); font-weight: 600; min-width: 112px; font-size: 12px; text-transform: uppercase; }
+  .linkbtn { background: none; border: 0; color: var(--accent2); cursor: pointer; padding: 0; font-size: 13px; margin-top: 8px; }
+  .profile { display: flex; gap: 22px; align-items: center; }
+  .stat .n { font-size: 26px; font-weight: 800; } .stat .l { color: var(--muted); font-size: 12px; }
+  .bar { height: 8px; background: var(--accent2); border-radius: 4px; }
+  .path { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin-top: 10px; }
+  .node { background: var(--panel2); border: 2px solid var(--accent2); border-radius: 12px; padding: 12px 16px; font-weight: 700; max-width: 230px; text-align: center; }
+  .node.end { border-color: var(--accent); }
+  .edge { color: var(--muted); font-size: 12px; text-align: center; padding: 0 8px; min-width: 90px; }
+  .edge .arrow { font-size: 22px; color: var(--accent2); line-height: 1; }
+  pre { background: #0b0e13; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #cfe3ff; margin: 0; }
+  .checks { display: grid; gap: 5px; }
+  .check { display: flex; gap: 9px; font-size: 13.5px; align-items: baseline; }
+  .check .i { width: 18px; font-weight: 800; }
+  .check.ok .i { color: var(--ok); } .check.no .i { color: var(--bad); }
+  .check .d { color: var(--muted); font-size: 12.5px; }
+  .status { display: inline-block; padding: 3px 10px; border-radius: 99px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; }
+  .status.answered { background: rgba(60,207,145,.15); color: var(--ok); } .status.rejected, .status.error { background: rgba(255,93,108,.15); color: var(--bad); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .answer { font-size: 16px; padding: 12px 14px; background: var(--panel2); border-radius: 10px; border-left: 4px solid var(--accent2); }
+  .badge { font-size: 12px; margin-left: 8px; padding: 2px 8px; border-radius: 6px; }
+  .badge.g { background: rgba(60,207,145,.15); color: var(--ok); } .badge.u { background: rgba(255,200,87,.15); color: var(--warn); }
+  .label { font-size: 12px; color: var(--muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .6px; }
+  .spin { color: var(--muted); font-style: italic; }
+  .examples { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .examples button { background: var(--panel); color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; cursor: pointer; }
+  .results { max-height: none; }
+  .err { color: var(--bad); }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } input[type=text] { min-width: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">Cine<span>Graph</span></div><div class="sub">Movie recommendations from a Neo4j knowledge graph</div></div>
+  <nav>
+    <button data-tab="foryou" class="active">For you</button>
+    <button data-tab="movies">Movies</button>
+    <button data-tab="path">Taste path</button>
+    <button data-tab="ask">Ask the graph</button>
+  </nav>
+</header>
+<main>
+
+<section id="foryou" class="tab active">
+  <div class="row">
+    <label>User id</label><input id="uid" type="number" value="1" min="1" style="width:100px">
+    <select id="genre"><option value="">All genres</option></select>
+    <button class="btn" id="loadUser">Show recommendations</button>
+  </div>
+  <div id="profile" class="card" style="margin-bottom:16px; display:none"></div>
+  <div class="cols">
+    <div><h3>Recommended for you</h3><div id="recs" class="grid" style="grid-template-columns:1fr"></div></div>
+    <div><h3>Discover outside your taste</h3><div id="disc" class="grid" style="grid-template-columns:1fr"></div></div>
+  </div>
+</section>
+
+<section id="movies" class="tab">
+  <div class="row"><input id="q" type="text" placeholder="Search a movie title…" value="The Matrix"><button class="btn" id="search">Search</button></div>
+  <div id="hits" class="row"></div>
+  <div id="movieDetail" class="card" style="display:none; margin-bottom:16px"></div>
+  <div class="cols">
+    <div><h3>Liked by the same people <span class="sub">(GDS Node Similarity)</span></h3><div id="simCollab" class="grid" style="grid-template-columns:1fr"></div></div>
+    <div><h3>Same genres and tags <span class="sub">(Jaccard)</span></h3><div id="simContent" class="grid" style="grid-template-columns:1fr"></div></div>
+  </div>
+</section>
+
+<section id="path" class="tab">
+  <div class="row">
+    <input id="fromQ" type="text" value="Toy Story" style="min-width:220px"> <span class="sub">→</span>
+    <input id="toQ" type="text" value="The Godfather" style="min-width:220px">
+    <select id="weighted"><option value="true">Strongest links (Dijkstra)</option><option value="false">Fewest hops (shortestPath)</option></select>
+    <button class="btn" id="findPath">Find taste path</button>
+  </div>
+  <div id="pathOut" class="card" style="display:none"></div>
+</section>
+
+<section id="ask" class="tab">
+  <div class="row"><input id="question" type="text" style="min-width:620px" value="What are the best sci-fi movies of the 90s with at least 30 ratings?"><button class="btn" id="askBtn">Ask</button></div>
+  <div class="examples" id="examples"></div>
+  <div id="askOut"></div>
+  <div class="card" style="margin-top:22px">
+    <h3>Guardrail test — what if the AI wrote this query?</h3>
+    <div class="row"><input id="badCypher" type="text" style="min-width:620px" value="MATCH (m:Movie)-[:DIRECTED_BY]->(d) DETACH DELETE m"><button class="btn red" id="checkBtn">Run guardrails</button></div>
+    <div id="checkOut"></div>
+  </div>
+</section>
+
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail ? (typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)) : r.statusText);
+  return body;
+}
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.id === b.dataset.tab));
+});
+
+function movieCard(m, opts = {}) {
+  const chips = (m.genres || []).map((g) => `<span class="chip">${esc(g)}</span>`).join("");
+  const why = opts.why ? `<button class="linkbtn" data-why="${m.movie_id}">Why was this recommended?</button><div class="whybox"></div>` : "";
+  return `<div class="card movie" data-id="${m.movie_id}">
+    <div class="t">${esc(m.title)} <span class="y">${m.year ?? ""}</span></div>
+    <div class="chips">${chips}</div>
+    <div class="meta"><span>★ ${m.avg_rating ?? "–"} · ${m.rating_count ?? 0} ratings</span>${m.score !== undefined ? `<span class="score">${m.score}</span>` : ""}</div>
+    ${m.detail ? `<div class="detail">${esc(m.detail)}</div>` : ""}${why}</div>`;
+}
+
+const GENRES = ["Action","Adventure","Animation","Children","Comedy","Crime","Documentary","Drama","Fantasy","Film-Noir","Horror","IMAX","Musical","Mystery","Romance","Sci-Fi","Thriller","War","Western"];
+GENRES.forEach((g) => $("genre").insertAdjacentHTML("beforeend", `<option>${g}</option>`));
+
+async function loadUser() {
+  const uid = $("uid").value, genre = $("genre").value;
+  $("recs").innerHTML = $("disc").innerHTML = '<div class="spin">Traversing the graph…</div>';
+  try {
+    const p = await api(`/api/users/${uid}`);
+    const max = Math.max(...p.favourite_genres.map((g) => g.liked_movies), 1);
+    $("profile").style.display = "block";
+    $("profile").innerHTML = `<div class="profile">
+      <div class="stat"><div class="n">User ${p.user_id}</div><div class="l">taste community ${p.community ?? "–"}</div></div>
+      <div class="stat"><div class="n">${p.rating_count}</div><div class="l">movies rated</div></div>
+      <div class="stat"><div class="n">${p.avg_rating}</div><div class="l">average rating</div></div>
+      <div style="flex:1">${p.favourite_genres.map((g) => `<div style="display:flex;gap:8px;align-items:center;font-size:12.5px;margin:2px 0">
+        <span style="width:80px;color:var(--muted)">${esc(g.genre)}</span><div class="bar" style="width:${g.liked_movies / max * 60}%"></div><span>${g.liked_movies}</span></div>`).join("")}</div></div>`;
+    const recs = await api(`/api/users/${uid}/recommendations?limit=6${genre ? "&genre=" + encodeURIComponent(genre) : ""}`);
+    $("recs").innerHTML = recs.items.map((m) => movieCard(m, {why: true})).join("") || "<div class='sub'>No recommendations.</div>";
+    const disc = await api(`/api/users/${uid}/discover?limit=6`);
+    $("disc").innerHTML = disc.items.map((m) => movieCard(m)).join("");
+  } catch (e) { $("recs").innerHTML = `<div class="err">${esc(e.message)}</div>`; $("disc").innerHTML = ""; }
+}
+$("loadUser").onclick = loadUser;
+$("recs").addEventListener("click", async (ev) => {
+  const id = ev.target.dataset.why; if (!id) return;
+  const box = ev.target.nextElementSibling;
+  box.innerHTML = '<div class="spin">Collecting graph evidence…</div>';
+  let w;
+  try { w = await api(`/api/users/${$("uid").value}/recommendations/${id}/why`); }
+  catch (e) { box.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+  const labels = {similar_users: "Similar users", similar_movie: "Similar movie", genre_affinity: "Genre", shared_tag: "Shared tag"};
+  const seen = {};
+  const ev2 = w.evidence.filter((e) => (seen[e.kind] = (seen[e.kind] || 0) + 1) <= 2);
+  box.innerHTML = `<div class="why"><div class="sum">${esc(w.summary)}</div>${ev2.map((e) => `<div class="ev"><b>${labels[e.kind]}</b><span>${esc(e.description)}</span></div>`).join("")}</div>`;
+});
+
+async function showMovie(id) {
+  const m = await api(`/api/movies/${id}`);
+  $("movieDetail").style.display = "block";
+  $("movieDetail").innerHTML = `<div style="display:flex;justify-content:space-between;gap:20px;align-items:center">
+    <div><div style="font-size:22px;font-weight:800">${esc(m.title)} <span class="y" style="color:var(--muted);font-weight:400">${m.year ?? ""}</span></div>
+    <div class="chips">${m.genres.map((g) => `<span class="chip">${esc(g)}</span>`).join("")}${m.top_tags.map((t) => `<span class="chip" style="color:var(--accent2)"># ${esc(t)}</span>`).join("")}</div></div>
+    <div class="profile"><div class="stat"><div class="n">★ ${m.avg_rating}</div><div class="l">${m.rating_count} ratings</div></div>
+    <div class="stat"><div class="n">${m.pagerank ? m.pagerank.toFixed(2) : "–"}</div><div class="l">PageRank</div></div>
+    <div class="stat"><div class="n">${m.community ?? "–"}</div><div class="l">community</div></div></div></div>`;
+  const [c, t] = await Promise.all([api(`/api/movies/${id}/similar?method=collaborative&limit=5`).catch(() => ({items: []})),
+                                    api(`/api/movies/${id}/similar?method=content&limit=5`)]);
+  $("simCollab").innerHTML = c.items.map((x) => movieCard(x)).join("") || "<div class='sub'>Not enough likes for collaborative similarity.</div>";
+  $("simContent").innerHTML = t.items.map((x) => movieCard(x)).join("");
+}
+$("search").onclick = async () => {
+  const hits = await api(`/api/movies/search?q=${encodeURIComponent($("q").value)}&limit=6`);
+  $("hits").innerHTML = hits.map((h) => `<button class="btn ghost" data-mid="${h.movie_id}">${esc(h.title)} (${h.year ?? "?"})</button>`).join("");
+  if (hits.length) showMovie(hits[0].movie_id);
+};
+$("hits").addEventListener("click", (ev) => ev.target.dataset.mid && showMovie(ev.target.dataset.mid));
+
+$("findPath").onclick = async () => {
+  const out = $("pathOut"); out.style.display = "block"; out.innerHTML = '<div class="spin">Searching the SIMILAR network…</div>';
+  try {
+    const [a, b] = await Promise.all([api(`/api/movies/search?q=${encodeURIComponent($("fromQ").value)}&limit=1`),
+                                      api(`/api/movies/search?q=${encodeURIComponent($("toQ").value)}&limit=1`)]);
+    const missing = !a.length ? $("fromQ").value : !b.length ? $("toQ").value : null;
+    if (missing) { out.innerHTML = `<div class="err">No movie found for "${esc(missing)}".</div>`; return; }
+    const p = await api(`/api/movies/path?from=${a[0].movie_id}&to=${b[0].movie_id}&weighted=${$("weighted").value}`);
+    if (p.hops < 0) { out.innerHTML = "No chain of similar movies connects these two."; return; }
+    out.innerHTML = `<div class="sub">${p.method === "dijkstra" ? "GDS Dijkstra, cost = 1 − similarity" : "Cypher shortestPath, fewest hops"} · ${p.hops} hops${p.total_cost !== undefined && p.total_cost !== null ? " · total cost " + p.total_cost : ""}</div>
+      <div class="path">${p.steps.map((s, i) => `<div class="node ${i === 0 || i === p.steps.length - 1 ? "end" : ""}">${esc(s.title)}</div>` +
+        (i < p.steps.length - 1 ? `<div class="edge"><div class="arrow">⟶</div>similarity ${s.similarity_to_next}</div>` : "")).join("")}</div>`;
+  } catch (e) { out.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+};
+
+const EXAMPLES = ["What are the best sci-fi movies of the 90s with at least 30 ratings?", "How many users rated Titanic?",
+  "Which movies are most similar to Toy Story?", "Who directed Pulp Fiction?", "Delete all the movies from the database"];
+$("examples").innerHTML = EXAMPLES.map((e) => `<button>${esc(e)}</button>`).join("");
+$("examples").addEventListener("click", (ev) => { if (ev.target.tagName === "BUTTON") { $("question").value = ev.target.textContent; ask(); } });
+
+function checksHtml(reports) {
+  return `<div class="checks">${reports.flatMap((r) => r.checks).map((c) => `<div class="check ${c.passed ? "ok" : "no"}">
+    <span class="i">${c.passed ? "✓" : "✗"}</span><span>${esc(c.name.replaceAll("_", " "))}</span><span class="d">${esc(c.detail)}</span></div>`).join("")}</div>`;
+}
+async function ask() {
+  const out = $("askOut"); out.innerHTML = '<div class="spin">The local LLM is writing a Cypher query…</div>';
+  try {
+    const r = await api("/api/ask", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({question: $("question").value})});
+    const cols = r.rows.length ? Object.keys(r.rows[0]) : [];
+    out.innerHTML = `<div class="card">
+      <div class="row" style="margin:0 0 6px"><span class="status ${r.status}">${r.status}</span><span class="sub">${r.attempts} attempt(s)</span></div>
+      ${r.answer ? `<div class="label">AI answer (generated text)</div><div class="answer">${esc(r.answer)}
+        <span class="badge ${r.answer_grounded ? "g" : "u"}">${r.answer_grounded ? "✓ every number found in the data" : "⚠ contains numbers not in the data"}</span></div>` : ""}
+      ${r.status === "rejected" ? `<div class="answer" style="border-color:var(--bad)">${esc(r.trace[r.trace.length - 1])}</div>` : ""}
+      <div class="cols" style="margin-top:6px">
+        <div>${r.cypher ? `<div class="label">Generated Cypher</div><pre>${esc(r.cypher)}</pre>` : ""}
+          ${cols.length ? `<div class="label">Verified rows from Neo4j</div><table><tr>${cols.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>
+          ${r.rows.slice(0, 8).map((row) => `<tr>${cols.map((c) => `<td>${esc(typeof row[c] === "object" ? JSON.stringify(row[c]) : row[c])}</td>`).join("")}</tr>`).join("")}</table>` : ""}</div>
+        <div><div class="label">Guardrails</div>${checksHtml(r.guardrails)}</div>
+      </div></div>`;
+  } catch (e) { out.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+$("askBtn").onclick = ask;
+$("checkBtn").onclick = async () => {
+  const r = await api("/api/ask/check", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({cypher: $("badCypher").value})});
+  $("checkOut").innerHTML = `<div class="row" style="margin:6px 0"><span class="status ${r.passed ? "answered" : "rejected"}">${r.passed ? "would run" : "blocked — never sent to the database"}</span></div>${checksHtml([r])}`;
+};
+</script>
+</body>
+</html>
